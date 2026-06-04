@@ -2,7 +2,9 @@
 
 ## Portfolio Optimization and Quantum Risk Analytics
 
-This repository contains a collection of Jupyter notebooks  implementations. Qiskit finance Notebooks : https://github.com/vandnaChaturvedi/qiskit_finance_tutorial
+This repository contains a collection of Jupyter notebooks  implementations. 
+
+Qiskit finance Notebooks : https://github.com/vandnaChaturvedi/qiskit_finance_tutorial
 ---
 
 ## Repository Structure
