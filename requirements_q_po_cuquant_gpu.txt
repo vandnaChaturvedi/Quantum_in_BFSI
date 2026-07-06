@@ -1,0 +1,79 @@
+# ============================================================
+# Requirements for q_po_cuquant.ipynb
+# Quantum Portfolio Optimization — cuStateVec GPU Simulator
+# ============================================================
+#
+# Python version  : 3.10.x
+# Tested on       : Linux x86_64
+# CUDA required   : 11.8+ (cu11 build) OR 12.1+ (cu12 build)
+#
+# ── cuStateVec GPU Version Chain ─────────────────────────────
+#
+#   qiskit-aer-gpu-cu11  0.17.0
+#       └─ cuquantum-cu11         24.8.0
+#               └─ custatevec-cu11    1.6.0.post1   ← cuStateVec GPU
+#
+# cuStateVec GPU version : 1.6.0.post1
+# cuQuantum version      : 24.8.0
+# CUDA compatibility     : CUDA 11.8 / 11.x
+#
+# ── System Prerequisites (install before pip) ────────────────
+# 1. NVIDIA GPU driver >= 520.61 (for CUDA 11.8)
+# 2. CUDA Toolkit 11.8:
+#      wget https://developer.nvidia.com/cuda-11-8-0-download
+# 3. cuQuantum system library (optional — pip wheels are self-contained):
+#      https://developer.nvidia.com/cuquantum-downloads
+#
+# ── Install Order ────────────────────────────────────────────
+# Step 1 — remove CPU-only aer if installed:
+#   pip uninstall qiskit-aer
+#
+# Step 2 — install GPU stack (CUDA 11):
+#   pip install -r requirements_q_po_cuquant_gpu.txt
+#
+# Step 3 — verify cuStateVec GPU is active:
+#   python -c "
+#     from qiskit_aer import AerSimulator
+#     sim = AerSimulator(method='statevector', device='GPU', cuStateVec_enable=True)
+#     print(sim.available_devices())   # should show ('CPU', 'GPU')
+#   "
+#
+# ── CUDA 12 Alternative ───────────────────────────────────────
+# If you have CUDA 12.x (e.g. H100, A100 with CUDA 12):
+#   qiskit-aer-gpu==0.15.1        (latest CUDA 12 build, older Aer)
+#   cuquantum-cu12==24.8.0        (cuStateVec-cu12 1.6.0.post1)
+#   Note: 0.17.0 is not yet released for CUDA 12 on PyPI
+# ============================================================
+
+# ── Core Quantum Stack — GPU Build ───────────────────────────
+# qiskit-aer-gpu-cu11 replaces qiskit-aer entirely (same API, GPU enabled)
+qiskit==1.4.2
+qiskit-aer-gpu-cu11==0.17.0
+qiskit-algorithms==0.3.1
+
+# ── cuStateVec GPU Library Chain ─────────────────────────────
+# cuquantum-cu11 24.8.0 bundles custatevec-cu11==1.6.0.post1
+cuquantum-cu11==24.8.0
+custatevec-cu11==1.6.0.post1
+
+# ── cuquantum-python (optional Python bindings) ───────────────
+# Provides high-level Python API for cuStateVec / cuTensorNet.
+# qiskit-aer-gpu works WITHOUT this — it calls cuStateVec C library directly.
+# Install only if you need direct Python-level cuStateVec access.
+# cuquantum-python==24.8.0
+
+# ── CUDA runtime wheels (pulled automatically by qiskit-aer-gpu-cu11) ──
+nvidia-cuda-runtime-cu11>=11.8.89
+nvidia-cublas-cu11>=11.11.3.6
+nvidia-cusolver-cu11>=11.4.1.48
+nvidia-cusparse-cu11>=11.7.5.86
+
+
+numpy==1.26.4
+scipy==1.15.2
+pandas==2.3.3
+matplotlib==3.10.6
+ipykernel==6.31.0
+ipython==8.30.0
+jupyter==1.1.1
+jupyterlab==4.4.7

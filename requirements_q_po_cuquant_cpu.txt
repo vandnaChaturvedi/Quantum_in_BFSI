@@ -1,14 +1,8 @@
-# ============================================================
 # Requirements for q_po_cuquant_cpu.ipynb
 # Quantum Portfolio Optimization — cuStateVec CPU Simulator
-# ============================================================
-#
-# Python version : 3.10.x
+#Python version : 3.10.x
 # Tested on      : Linux x86_64 (Ubuntu 20.04 / 22.04)
 # Jupyter kernel : conda base environment
-#
-# Install all at once:
-#   pip install -r requirements_q_po_cuquant_cpu.txt
 #
 # ── cuStateVec CPU Notes ─────────────────────────────────────
 # cuStateVec CPU is BUNDLED inside qiskit-aer 0.17.0.
@@ -23,23 +17,14 @@
 # To upgrade to GPU (requires CUDA 12 + NVIDIA GPU):
 #   pip install qiskit-aer-gpu==0.17.0   # replaces qiskit-aer
 #   pip install cuquantum-python          # NVIDIA cuQuantum Python bindings
-# ============================================================
 
-# ── Core Quantum Stack ────────────────────────────────────────
-# Includes cuStateVec CPU (bundled — no separate install needed)
 qiskit==1.4.2
 qiskit-aer==0.17.0
 qiskit-algorithms==0.3.1
-
-# ── Scientific Computing ──────────────────────────────────────
 numpy==1.26.4
 scipy==1.15.2
 pandas==2.3.3
-
-# ── Visualization ─────────────────────────────────────────────
 matplotlib==3.10.6
-
-# ── Jupyter Notebook Runtime ──────────────────────────────────
 ipykernel==6.31.0
 ipython==8.30.0
 jupyter==1.1.1
