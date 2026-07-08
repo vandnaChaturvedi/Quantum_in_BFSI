@@ -1,0 +1,64 @@
+# ============================================================
+# environment.yml — Quantum Portfolio Optimization GPU Stack
+# Target  : 7x NVIDIA H100 80 GB SXM  (CUDA 12.1)
+# Python  : 3.10
+# Usage   : conda env create -f environment.yml
+#           conda activate qpo_gpu
+# ============================================================
+
+name: qpo_gpu
+
+channels:
+  - conda-forge
+  - defaults
+
+dependencies:
+  # ── Python runtime ─────────────────────────────────────────
+  - python=3.10
+  - pip>=23.3
+
+  # ── Scientific computing (conda-managed for BLAS/MKL link) ─
+  - numpy=1.26.4
+  - scipy=1.15.2
+  - pandas=2.3.3
+  - matplotlib=3.10.6
+
+  # ── Optimisation solver (CLARABEL backend) ─────────────────
+  - cvxpy>=1.4.0
+
+  # ── CMA-ES optimizer ───────────────────────────────────────
+  - cma>=4.0
+
+  # ── Jupyter (optional — for notebook inspection on cluster) ─
+  - ipykernel=6.31.0
+  - ipython=8.30.0
+  - jupyterlab=4.4.7
+
+  # ── pip-only packages ──────────────────────────────────────
+  - pip:
+    # ── Core Qiskit ──────────────────────────────────────────
+    - qiskit==1.4.2
+    - qiskit-algorithms==0.3.1
+    - qiskit-finance==0.4.1
+    - qiskit-optimization==0.6.1
+
+    # ── GPU Aer (CUDA 12 / H100) ─────────────────────────────
+    # qiskit-aer-gpu replaces qiskit-aer — same API, GPU enabled
+    # For CUDA 12.x (H100, A100 Ada, RTX 40xx):
+    - qiskit-aer-gpu==0.15.1
+
+    # ── cuStateVec GPU library chain (CUDA 12) ───────────────
+    # cuquantum-cu12 bundles custatevec-cu12 1.6.0.post1
+    - cuquantum-cu12==24.8.0
+    - custatevec-cu12==1.6.0.post1
+
+    # ── CUDA 12 runtime wheels ────────────────────────────────
+    # Pulled automatically by qiskit-aer-gpu; pinned here for
+    # reproducibility inside the container
+    - nvidia-cuda-runtime-cu12>=12.1.55
+    - nvidia-cublas-cu12>=12.1.0.26
+    - nvidia-cusolver-cu12>=11.4.5.107
+    - nvidia-cusparse-cu12>=12.0.2.55
+
+    # ── Symengine (required by Qiskit transpiler) ────────────
+    - symengine>=0.9.2

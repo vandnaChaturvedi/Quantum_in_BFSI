@@ -1,0 +1,145 @@
+# ============================================================
+# docker-compose.yml — Quantum Portfolio Optimization
+# Hardware : 7x NVIDIA H100 80 GB SXM
+# Simulator: cuStateVec GPU  (CUDA 12)
+#
+# Usage:
+#   Build image (once):
+#     docker compose build
+#
+#   Run a specific script:
+#     docker compose run --rm qpo_1_qiskit
+#     docker compose run --rm qpo_2_qiskit
+#     docker compose run --rm qpo_1_custatevec
+#     docker compose run --rm qpo_2_custatevec
+#
+#   Run all 4 scripts in parallel (each uses all 7 H100s):
+#     docker compose up
+#
+#   Verify GPU inside container:
+#     docker compose run --rm gpu_check
+# ============================================================
+
+version: '3.8'
+
+# ── Shared GPU resource definition ────────────────────────────
+x-gpu-all: &gpu-all
+  runtime: nvidia
+  environment: &gpu-env
+    NVIDIA_VISIBLE_DEVICES: "0,1,2,3,4,5,6"
+    CUDA_VISIBLE_DEVICES:   "0,1,2,3,4,5,6"
+    NVIDIA_DRIVER_CAPABILITIES: compute,utility
+  deploy:
+    resources:
+      reservations:
+        devices:
+          - driver: nvidia
+            count: 7                   # all 7 H100s
+            capabilities: [gpu]
+
+# ── Shared volume definition ──────────────────────────────────
+x-volumes: &shared-volumes
+  - ./:/workspace                      # source code + CSV data
+  - ./outputs:/workspace/outputs       # plots and result logs
+
+services:
+
+  # ── 1. GPU availability check ────────────────────────────────
+  gpu_check:
+    image: qpo-gpu:latest
+    build:
+      context: .
+      dockerfile: Dockerfile
+    <<: *gpu-all
+    volumes: *shared-volumes
+    command:
+      - "-c"
+      - |
+        from qiskit_aer import AerSimulator
+        from qiskit import QuantumCircuit
+        sim = AerSimulator(method='statevector', device='GPU', cuStateVec_enable=True)
+        qc  = QuantumCircuit(2); qc.h(0); qc.cx(0,1); qc.measure_all()
+        r   = sim.run(qc, shots=1024).result()
+        print('cuStateVec GPU OK —', sim.available_devices())
+        print('Counts:', r.get_counts())
+    profiles: ["check"]
+
+  # ── 2. 1_qiskit-gpu.py  (8 methods, QAOA+VQE stack) ─────────
+  qpo_1_qiskit:
+    image: qpo-gpu:latest
+    build:
+      context: .
+      dockerfile: Dockerfile
+    <<: *gpu-all
+    volumes: *shared-volumes
+    working_dir: /workspace
+    command: ["1_qiskit-gpu.py"]
+    environment:
+      <<: *gpu-env
+      QPO_SCRIPT: "1_qiskit-gpu"
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "50m"
+        max-file: "3"
+    profiles: ["qiskit", "all"]
+
+  # ── 3. 2_qiskit-gpu.py  (4 methods, QAOA-only stack) ────────
+  qpo_2_qiskit:
+    image: qpo-gpu:latest
+    build:
+      context: .
+      dockerfile: Dockerfile
+    <<: *gpu-all
+    volumes: *shared-volumes
+    working_dir: /workspace
+    command: ["2_qiskit-gpu.py"]
+    environment:
+      <<: *gpu-env
+      QPO_SCRIPT: "2_qiskit-gpu"
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "50m"
+        max-file: "3"
+    profiles: ["qiskit", "all"]
+
+  # ── 4. 1_custatevec-gpu.py  (8 methods, cuStateVec) ─────────
+  qpo_1_custatevec:
+    image: qpo-gpu:latest
+    build:
+      context: .
+      dockerfile: Dockerfile
+    <<: *gpu-all
+    volumes: *shared-volumes
+    working_dir: /workspace
+    command: ["1_custatevec-gpu.py"]
+    environment:
+      <<: *gpu-env
+      QPO_SCRIPT: "1_custatevec-gpu"
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "50m"
+        max-file: "3"
+    profiles: ["custatevec", "all"]
+
+  # ── 5. 2_custatevec-gpu.py  (4 methods, cuStateVec) ─────────
+  qpo_2_custatevec:
+    image: qpo-gpu:latest
+    build:
+      context: .
+      dockerfile: Dockerfile
+    <<: *gpu-all
+    volumes: *shared-volumes
+    working_dir: /workspace
+    command: ["2_custatevec-gpu.py"]
+    environment:
+      <<: *gpu-env
+      QPO_SCRIPT: "2_custatevec-gpu"
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "50m"
+        max-file: "3"
+    profiles: ["custatevec", "all"]
